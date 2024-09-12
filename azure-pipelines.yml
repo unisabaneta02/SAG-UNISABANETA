@@ -1,0 +1,61 @@
+trigger:
+  branches:
+    include:
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Tests
+    displayName: "Run Linter, Tests, and SonarCloud Analysis"
+    jobs:
+      - job: Lint
+        displayName: "Run linter"
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+              
+          - script: |
+              pip install flake8
+              flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+            displayName: "Run flake8 linter"
+
+      - job: Tests
+        displayName: "Run tests"
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+
+          - script: |
+              pip install -r requirements.txt
+              pytest --junitxml=test-results.xml
+            displayName: "Install dependencies and run tests"
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFiles: '**/test-results.xml'
+              testRunTitle: 'Tests for Develop'
+      
+      - job: SonarCloud
+        displayName: "Analyze code with SonarCloud"
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+
+          - task: SonarCloudPrepare@1
+            inputs:
+              SonarCloud: 'SonarCloud connection'
+              organization: 'your-org'
+              scannerMode: 'CLI'
+              configMode: 'manual'
+              cliProjectKey: 'your-project-key'
+              cliProjectName: 'your-project-name'
+
+          - script: |
+              pip install -r requirements.txt
+              sonar-scanner
+            displayName: "Run SonarCloud scanner"
