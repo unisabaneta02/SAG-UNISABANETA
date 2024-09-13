@@ -5,7 +5,7 @@ Una pequeña API para la gestión de tareas utilizando Flask y SQLite.
 
 ## Instalación
 
-1. Clona el repositorio:
+1. clona el repositorio:
     ```bash
     git clone https://github.com/tu_usuario/tu_repositorio.git
     ```
