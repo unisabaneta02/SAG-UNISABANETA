@@ -46,7 +46,7 @@ stages:
             inputs:
               versionSpec: '3.x'
 
-          - task: SonarCloudPrepare@1
+          - task: SonarCloudPrepare@2
             inputs:
               SonarCloud: 'SonarCloud'  # El nombre exacto de tu Service Connection
               organization: 'unisabaneta'  # Reemplaza por la clave de tu organización en SonarCloud
