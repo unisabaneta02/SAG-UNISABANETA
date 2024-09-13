@@ -46,14 +46,14 @@ stages:
             inputs:
               versionSpec: '3.x'
 
-          - task: SonarCloudPrepare@1
+          - task: SonarCloudPrepare@2
             inputs:
-              SonarCloud: 'SonarCloud connection'
-              organization: 'your-org'
+              SonarCloud: 'SonarCloud'  # El nombre exacto de tu Service Connection
+              organization: 'unisabaneta'  # Reemplaza por la clave de tu organización en SonarCloud
               scannerMode: 'CLI'
               configMode: 'manual'
-              cliProjectKey: 'your-project-key'
-              cliProjectName: 'your-project-name'
+              cliProjectKey: '$(Build.Repository.Name)'  # Usa el nombre del repositorio como Project Key
+              cliProjectName: '$(Build.Repository.Name)'  # Usa el nombre del repositorio como Project Name
 
           - script: |
               pip install -r requirements.txt
