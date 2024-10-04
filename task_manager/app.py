@@ -26,5 +26,12 @@ def add_task():
     db.session.commit()
     return jsonify(new_task.to_dict()), 201
 
-if __name__ == '__main__':
-    app.run(debug=True)
+def delete_task(task_id):
+    task = Task.query.get(task_id)
+    db.session.delete(task)
+    db.session.commit()
+
+@app.route('/tasks/<int:task_id>', methods=['DELETE'])
+def delete_task_by_id(task_id):
+    delete_task(task_id)
+    return '', 204
