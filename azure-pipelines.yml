@@ -33,6 +33,8 @@ stages:
               pip install -r requirements.txt
               pytest --junitxml=test-results.xml
             displayName: "Install dependencies and run tests"
+            workingDirectory: '/task_manager'  
+
 
           - task: PublishTestResults@2
             inputs:
