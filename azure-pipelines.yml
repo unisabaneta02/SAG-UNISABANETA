@@ -38,7 +38,7 @@ stages:
             inputs:
               testResultsFiles: '**/test-results.xml'
               testRunTitle: 'Tests for Develop'
-      
+
       - job: SonarCloud
         displayName: "Analyze code with SonarCloud"
         steps:
@@ -46,16 +46,25 @@ stages:
             inputs:
               versionSpec: '3.x'
 
+          # Prepara el entorno para el análisis de SonarCloud
           - task: SonarCloudPrepare@2
             inputs:
-              SonarCloud: 'SonarCloud'  # El nombre exacto de tu Service Connection
-              organization: 'unisabaneta'  # Reemplaza por la clave de tu organización en SonarCloud
+              SonarCloud: 'SonarCloud'  # Reemplaza con el nombre de tu Service Connection de SonarCloud
+              organization: 'unisabaneta'  # Clave de tu organización en SonarCloud
               scannerMode: 'CLI'
               configMode: 'manual'
               cliProjectKey: '$(Build.Repository.Name)'  # Usa el nombre del repositorio como Project Key
               cliProjectName: '$(Build.Repository.Name)'  # Usa el nombre del repositorio como Project Name
 
+          # Instalar dependencias antes de correr el análisis de SonarCloud
           - script: |
               pip install -r task_manager/requirements.txt
-              sonar-scanner
-            displayName: "Run SonarCloud scanner"
+            displayName: "Install dependencies"
+
+          # Ejecuta el análisis de SonarCloud
+          - task: SonarCloudAnalyze@2
+            displayName: "Run SonarCloud analysis"
+
+          # Publica los resultados del análisis de SonarCloud
+          - task: SonarCloudPublish@2
+            displayName: "Publish SonarCloud results"
