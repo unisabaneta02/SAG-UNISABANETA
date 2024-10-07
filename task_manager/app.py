@@ -1,18 +1,17 @@
 from flask import Flask, jsonify, request
 from models import Task, db
-#imports
-#estos son los imports
-#nuevos imports
 
+# Configuración de la aplicación
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
-@app.before_first_request
-def create_tables():
+# Crear tablas antes de que la aplicación reciba solicitudes
+with app.app_context():
     db.create_all()
 
+# Rutas y funcionalidades de la aplicación
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
     tasks = Task.query.all()
@@ -35,3 +34,6 @@ def delete_task(task_id):
 def delete_task_by_id(task_id):
     delete_task(task_id)
     return '', 204
+
+if __name__ == '__main__':
+    app.run(debug=True)
