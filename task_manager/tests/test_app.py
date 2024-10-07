@@ -32,7 +32,6 @@ class TaskAppTestCase(unittest.TestCase):
         tasks = json.loads(response.data)
         self.assertEqual(len(tasks), 1)
         self.assertEqual(tasks[0]['description'], 'Test Task')
-        #comentario
 
     def test_get_tasks(self):
         # Agregar una tarea de prueba primero
@@ -58,5 +57,6 @@ class TaskAppTestCase(unittest.TestCase):
         tasks = json.loads(response.data)
         self.assertEqual(len(tasks), 0)
 
+# Este bloque puede ser opcional si ejecutas pruebas con pytest
 if __name__ == '__main__':
     unittest.main()
