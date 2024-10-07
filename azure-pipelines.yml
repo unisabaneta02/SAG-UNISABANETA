@@ -50,10 +50,10 @@ stages:
           - task: SonarCloudPrepare@2
             inputs:
               SonarCloud: 'SonarCloud'  # Reemplazar con el nombre de tu Service Connection
-              organization: 'unisabaneta02'
+              organization: 'unisabaneta'
               scannerMode: 'CLI'
               configMode: 'manual'
-              cliProjectKey: 'unisabaneta02/SAG-UNISABANETA'
+              cliProjectKey: 'unisabaneta/SAG-UNISABANETA'
               cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
               extraProperties: |
