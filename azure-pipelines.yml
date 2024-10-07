@@ -20,7 +20,7 @@ stages:
               python -m venv task_manager/env
               source task_manager/env/bin/activate
               pip install -r task_manager/requirements.txt
-              pip install pytest coverage  # Instalar pytest y coverage
+              pip install pytest coverage
             displayName: "Configurar entorno Python e instalar dependencias"
 
   - stage: Tests
