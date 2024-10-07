@@ -1,27 +1,8 @@
 import unittest
 import json
-from task_manager import app, db
+from task_manager import app  # Importar la aplicación y la base de datos
 
 class TaskAppTestCase(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        # Configurar la aplicación para las pruebas
-        cls.app = app
-        cls.app.config['TESTING'] = True
-        cls.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test_tasks.db'  # Base de datos en memoria para pruebas
-        cls.client = cls.app.test_client()
-
-        # Crear el contexto de la aplicación y las tablas
-        with cls.app.app_context():
-            db.create_all()
-
-    @classmethod
-    def tearDownClass(cls):
-        # Limpiar la base de datos después de las pruebas
-        with cls.app.app_context():
-            db.drop_all()
-
     def test_add_task(self):
         # Prueba agregar una nueva tarea
         response = self.client.post('/tasks', json={'description': 'Test Task'})
