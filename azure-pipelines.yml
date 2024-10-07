@@ -24,11 +24,11 @@ stages:
             displayName: "Setup Python environment and install dependencies"
 
   - stage: LintAndTests
-    displayName: "Run Linter"
+    displayName: "Run Linter and Tests"
     dependsOn: Setup
     jobs:
       - job: Lint
-        displayName: "Run linter"
+        displayName: "Run Linter and Tests"
         steps:
           - script: |
               source task_manager/env/bin/activate
@@ -36,6 +36,13 @@ stages:
               # Excluir el entorno virtual del análisis para evitar falsos positivos
               flake8 . --exclude=env,task_manager/env --count --select=E9,F63,F7,F82 --show-source --statistics
             displayName: "Run flake8 linter"
+
+          - script: |
+              source task_manager/env/bin/activate
+              # Ejecutar pruebas con cobertura y generar reporte en XML
+              coverage run -m unittest discover -s tests
+              coverage xml -o task_manager/coverage.xml
+            displayName: "Run unit tests and generate coverage report"
 
   - stage: SonarCloudAnalysis
     displayName: "SonarCloud Analysis"
@@ -48,7 +55,6 @@ stages:
             inputs:
               versionSpec: '3.x'
 
-          # Prepara el entorno para el análisis de SonarCloud
           - task: SonarCloudPrepare@2
             inputs:
               SonarCloud: 'SonarCloud'  # Reemplazar con el nombre de tu Service Connection
@@ -58,6 +64,11 @@ stages:
               cliProjectKey: 'unisabaneta_sag-unisabaneta'
               cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
+              extraProperties: |
+                sonar.python.version=3
+                sonar.coverage.exclusions=**/env/**
+                sonar.python.coverage.reportPaths=task_manager/coverage.xml
+                sonar.issuesReport.console.enable=true  # Mostrar errores en la consola
 
           - script: |
               source task_manager/env/bin/activate
@@ -67,10 +78,19 @@ stages:
           # Ejecuta el análisis de SonarCloud
           - task: SonarCloudAnalyze@2
             displayName: "Run SonarCloud analysis"
+            continueOnError: false  # Asegura que falle si hay problemas en Sonar
 
           # Publica los resultados del análisis de SonarCloud
           - task: SonarCloudPublish@2
             displayName: "Publish SonarCloud results"
+
+          # Falla si hay issues con severidad mayor a un umbral específico
+          - script: |
+              if grep -q "ERROR" $(Agent.TempDirectory)/.sonar/sonar-report.json; then
+                echo "SonarCloud detected issues, failing the pipeline."
+                exit 1
+              fi
+            displayName: "Check for SonarCloud issues and fail if present"
 
   - stage: PublishArtifacts
     displayName: "Publish Build Artifacts"
