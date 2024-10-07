@@ -31,7 +31,7 @@ stages:
 
           - script: |
               pip install -r task_manager/requirements.txt
-              pytest --junitxml=test-results.xml
+              pytest --junitxml=test-results.xml --cov=task_manager  # Agrega el reporte de cobertura
             displayName: "Install dependencies and run tests"
 
           - task: PublishTestResults@2
@@ -57,82 +57,9 @@ stages:
               cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
               extraProperties: |
-<<<<<<< HEAD
                 sonar.branch.name=develop  # Establecer explícitamente la rama develop
-                trigger:
-  branches:
-    include:
-      - develop
+                sonar.python.coverage.reportPaths=test-results.xml  # Ruta al archivo de cobertura
 
-pool:
-  vmImage: 'ubuntu-latest'
-
-stages:
-  - stage: Tests
-    displayName: "Run Linter, Tests, and SonarCloud Analysis"
-    jobs:
-      - job: Lint
-        displayName: "Run linter"
-        steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.x'
-
-          - script: |
-              pip install flake8
-              flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-            displayName: "Run flake8 linter"
-
-      - job: Tests
-        displayName: "Run tests"
-        steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.x'
-
-          - script: |
-              pip install -r task_manager/requirements.txt
-              pytest --junitxml=test-results.xml
-            displayName: "Install dependencies and run tests"
-
-          - task: PublishTestResults@2
-            inputs:
-              testResultsFiles: '**/test-results.xml'
-              testRunTitle: 'Tests for Develop'
-
-      - job: SonarCloud
-        displayName: "Analyze code with SonarCloud"
-        steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '3.x'
-
-          # Prepara el entorno para el análisis de SonarCloud
-          - task: SonarCloudPrepare@2
-            inputs:
-              SonarCloud: 'SonarCloud'  # Reemplazar con el nombre de tu Service Connection
-              organization: 'unisabaneta'
-              scannerMode: 'CLI'
-              configMode: 'manual'
-              cliProjectKey: 'unisabaneta_sag-unisabaneta'
-              cliProjectName: 'SAG-UNISABANETA'
-              cliSources: '.'
-              extraProperties: |
-                sonar.branch.name=develop
-                sonar.python.coverage.reportPaths=test-results.xml
-
-          # Instalar dependencias antes de correr el análisis de SonarCloud
-          - script: |
-              pip install -r task_manager/requirements.txt
-            displayName: "Install dependencies"
-
-          # Ejecuta el análisis de SonarCloud
-          - task: SonarCloudAnalyze@2
-            displayName: "Run SonarCloud analysis"
-
-          # Publica los resultados del análisis de SonarCloud
-          - task: SonarCloudPublish@2
-            displayName: "Publish SonarCloud results"
           # Instalar dependencias antes de correr el análisis de SonarCloud
           - script: |
               pip install -r task_manager/requirements.txt
