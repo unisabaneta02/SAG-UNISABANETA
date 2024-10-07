@@ -30,7 +30,7 @@ stages:
               versionSpec: '3.x'
 
           - script: |
-              pip install -r task_manager/requirements.txt
+              pip install -r task_manager/requirements.txt -y
               pytest --junitxml=test-results.xml
             displayName: "Install dependencies and run tests"
 
