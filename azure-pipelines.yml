@@ -53,12 +53,11 @@ stages:
               organization: 'unisabaneta'
               scannerMode: 'CLI'
               configMode: 'manual'
-              cliProjectKey: 'SAG-UNISABANETA'
+              cliProjectKey: 'unisabaneta_sag-unisabaneta'
               cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
               extraProperties: |
                 sonar.branch.name=develop  # Establecer explícitamente la rama develop
-                sonar.python.coverage.reportPaths=coverage.xml  # Incluir cobertura si es relevante
 
           # Instalar dependencias antes de correr el análisis de SonarCloud
           - script: |
