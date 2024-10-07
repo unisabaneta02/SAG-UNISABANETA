@@ -49,12 +49,16 @@ stages:
           # Prepara el entorno para el análisis de SonarCloud
           - task: SonarCloudPrepare@2
             inputs:
-              SonarCloud: 'SonarCloud'  # Reemplaza con el nombre de tu Service Connection de SonarCloud
-              organization: 'unisabaneta'  # Clave de tu organización en SonarCloud
+              SonarCloud: 'SonarCloud'  # Reemplazar con el nombre de tu Service Connection
+              organization: 'unisabaneta02'
               scannerMode: 'CLI'
               configMode: 'manual'
-              cliProjectKey: '$(Build.Repository.Name)'  # Usa el nombre del repositorio como Project Key
-              cliProjectName: '$(Build.Repository.Name)'  # Usa el nombre del repositorio como Project Name
+              cliProjectKey: 'unisabaneta02/SAG-UNISABANETA'
+              cliProjectName: 'SAG-UNISABANETA'
+              cliSources: '.'
+              extraProperties: |
+                sonar.branch.name=develop  # Establecer explícitamente la rama develop
+                sonar.python.coverage.reportPaths=coverage.xml  # Incluir cobertura si es relevante
 
           # Instalar dependencias antes de correr el análisis de SonarCloud
           - script: |
