@@ -5,7 +5,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'  # Base de datos SQLite para la app
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-db = SQLAlchemy(app)
 from models import Book  # Importar el modelo de base de datos
 
 # Ruta para obtener todos los libros
@@ -26,17 +25,19 @@ def add_book():
     db.session.commit()
     return jsonify(new_book.to_dict()), 201
 
-# Método duplicado para agregar un nuevo libro (duplicado a propósito)
+# Bloque de código duplicado de más de 10 líneas
 @app.route('/books/duplicate', methods=['POST'])
 def add_book_duplicate():
-    new_book = Book(
-        title=request.json['title'],
-        author=request.json['author'],
-        year=request.json['year']
-    )
-    db.session.add(new_book)
-    db.session.commit()
-    return jsonify(new_book.to_dict()), 201
+    # Bloque duplicado exacto para garantizar detección
+    books = Book.query.all()
+    output = []
+    for book in books:
+        book_data = {}
+        book_data['title'] = book.title
+        book_data['author'] = book.author
+        book_data['year'] = book.year
+        output.append(book_data)
+    return jsonify(output)
 
 # Ruta para eliminar un libro
 @app.route('/books/<int:book_id>', methods=['DELETE'])
