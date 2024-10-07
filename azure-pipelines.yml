@@ -53,7 +53,7 @@ stages:
               organization: 'unisabaneta'
               scannerMode: 'CLI'
               configMode: 'manual'
-              cliProjectKey: 'unisabaneta/SAG-UNISABANETA'
+              cliProjectKey: 'SAG-UNISABANETA'
               cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
               extraProperties: |
