@@ -17,7 +17,7 @@ Una pequeña API para la gestión de tareas utilizando Flask y SQLite.
 
 3. Instala las dependencias:
     ```bash
-    pip install -r requirements.txt
+    pip install -r requirements.txt.
     ```
 
 4. Ejecuta la aplicación:
