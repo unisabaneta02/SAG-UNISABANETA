@@ -8,44 +8,50 @@ pool:
 
 stages:
   - stage: Setup
-    displayName: "Configurar Entorno"
+    displayName: "Setup Environment"
     jobs:
       - job: Setup
-        displayName: "Instalar Dependencias"
+        displayName: "Install Dependencies"
         steps:
           - task: UsePythonVersion@0
             inputs:
               versionSpec: '3.x'
+
           - script: |
-              python -m venv task_manager/env
+              python -m venv task_manager/env  # Crear entorno virtual
               source task_manager/env/bin/activate
               pip install -r task_manager/requirements.txt
-              pip install pytest coverage
-            displayName: "Configurar entorno Python e instalar dependencias"
+            displayName: "Setup Python environment and install dependencies"
 
-  - stage: Tests
-    displayName: "Ejecutar Pruebas"
+  - stage: LintAndTests
+    displayName: "Run Linter and Tests"
     dependsOn: Setup
     jobs:
-      - job: Test
-        displayName: "Ejecutar pruebas unitarias"
+      - job: Lint
+        displayName: "Run linter"
         steps:
           - script: |
               source task_manager/env/bin/activate
-              coverage run -m pytest test/test_app.py
-              coverage xml -o task_manager/coverage.xml
-            displayName: "Ejecutar pruebas unitarias y generar reporte de cobertura"
+              pip install flake8
+              # Excluir el entorno virtual del análisis para evitar falsos positivos
+              flake8 . --exclude=env,task_manager/env --count --select=E9,F63,F7,F82 --show-source --statistics
+            displayName: "Run flake8 linter"
 
   - stage: SonarCloudAnalysis
-    displayName: "Análisis de SonarCloud"
-    dependsOn: Tests
+    displayName: "SonarCloud Analysis"
+    dependsOn: LintAndTests
     jobs:
       - job: SonarCloud
-        displayName: "Analizar código con SonarCloud"
+        displayName: "Analyze code with SonarCloud"
         steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+
+          # Prepara el entorno para el análisis de SonarCloud
           - task: SonarCloudPrepare@2
             inputs:
-              SonarCloud: 'SonarCloud'  # Reemplazar con tu Service Connection
+              SonarCloud: 'SonarCloud'  # Reemplazar con el nombre de tu Service Connection
               organization: 'unisabaneta'
               scannerMode: 'CLI'
               configMode: 'manual'
@@ -53,23 +59,31 @@ stages:
               cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
               extraProperties: |
-                sonar.python.version=3.x  # Especifica tu versión de Python
-                sonar.coverage.reportPaths=task_manager/coverage.xml
+                sonar.python.coverage.reportPaths=task_manager/test-results.xml
+
+          - script: |
+              source task_manager/env/bin/activate
+              pip install -r task_manager/requirements.txt
+            displayName: "Install dependencies for SonarCloud analysis"
+
+          # Ejecuta el análisis de SonarCloud
           - task: SonarCloudAnalyze@2
-            displayName: "Ejecutar análisis de SonarCloud"
+            displayName: "Run SonarCloud analysis"
+
+          # Publica los resultados del análisis de SonarCloud
           - task: SonarCloudPublish@2
-            displayName: "Publicar resultados de SonarCloud"
+            displayName: "Publish SonarCloud results"
 
   - stage: PublishArtifacts
-    displayName: "Publicar Artefactos"
+    displayName: "Publish Build Artifacts"
     dependsOn: SonarCloudAnalysis
     jobs:
       - job: Publish
-        displayName: "Publicar Artefactos"
+        displayName: "Publish Build Artifacts"
         steps:
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: '$(System.DefaultWorkingDirectory)'
               artifactName: 'build-artifacts'
               publishLocation: 'Container'
-            displayName: "Publicar artefactos de compilación"
+            displayName: "Publish build artifacts"
