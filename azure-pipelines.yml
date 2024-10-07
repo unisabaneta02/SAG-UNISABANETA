@@ -57,6 +57,7 @@ stages:
               cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
               extraProperties: |
+<<<<<<< HEAD
                 sonar.branch.name=develop  # Establecer explícitamente la rama develop
                 trigger:
   branches:
@@ -117,6 +118,8 @@ stages:
               cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
               extraProperties: |
+=======
+>>>>>>> ae37738ddfb7d5b3d7fe22c3748943d3c11a2d0d
                 sonar.branch.name=develop
                 sonar.python.coverage.reportPaths=test-results.xml
 
