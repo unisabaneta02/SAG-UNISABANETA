@@ -2,12 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-class Task(db.Model):
+# Define tus modelos aquí
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(255), nullable=False)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'description': self.description
-        }
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    # ... otros campos
