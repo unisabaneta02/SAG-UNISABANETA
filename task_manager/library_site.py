@@ -26,7 +26,7 @@ def add_book():
     db.session.commit()
     return jsonify(new_book.to_dict()), 201
 
-# Ruta para eliminar un libro
+# Ruta para eliminar un libroo
 @app.route('/books/<int:book_id>', methods=['DELETE'])
 def delete_book(book_id):
     book = Book.query.get_or_404(book_id)
