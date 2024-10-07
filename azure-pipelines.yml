@@ -16,27 +16,29 @@ stages:
           - task: UsePythonVersion@0
             inputs:
               versionSpec: '3.x'
-          
-          # Instala dependencias y guarda como un artifact compartido
+
+          # Instalar dependencias y definir variable de entorno para la ubicación del entorno de Python
           - script: |
               python -m pip install --upgrade pip
               pip install -r task_manager/requirements.txt
-            displayName: "Install dependencies"
+              echo "##vso[task.setvariable variable=PYTHON_SITE_PACKAGES]$(python -c 'import site; print(site.getsitepackages()[0])')"
+            displayName: "Install dependencies and set path variable"
 
-          # Publica el directorio de `site-packages` como un artefacto para reutilizar en los otros trabajos
+          # Publicar la ubicación del entorno de Python como un artefacto usando la variable de entorno definida
           - task: PublishPipelineArtifact@1
             inputs:
-              targetPath: "$(pip show flask | grep Location | cut -d ' ' -f 2)"  # Publica `site-packages`
+              targetPath: '$(PYTHON_SITE_PACKAGES)'  # Usa la variable que contiene la ruta correcta
               artifact: 'python-env'
+            displayName: "Publish Python environment"
 
       - job: Lint
         displayName: "Run linter"
-        dependsOn: Setup  # Este trabajo depende del anterior para las dependencias
+        dependsOn: Setup  # Depender del job Setup para garantizar que las dependencias se han instalado
         steps:
-          - download: current
-            artifact: 'python-env'
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
 
-          # Instalar `flake8` ya que no está incluido en requirements.txt
           - script: |
               pip install flake8
               flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
@@ -44,40 +46,35 @@ stages:
 
       - job: Tests
         displayName: "Run tests"
-        dependsOn: Setup
+        dependsOn: Setup  # Depender del job Setup para reutilizar el entorno
         steps:
-          - download: current
-            artifact: 'python-env'
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
 
           - script: |
+              pip install -r task_manager/requirements.txt
               pytest --junitxml=task_manager/test-results.xml --cov=task_manager
-            displayName: "Run tests and generate coverage report"
+            displayName: "Install dependencies and run tests"
 
           - task: PublishTestResults@2
             inputs:
-              testResultsFiles: '**/task_manager/test-results.xml'
+              testResultsFiles: '**/task_manager/test-results.xml'  # Asegúrate de que la ruta es correcta
               testRunTitle: 'Tests for Develop'
-
-          # Publica los resultados de cobertura para SonarCloud
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: 'task_manager/test-results.xml'
-              artifact: 'test-results'
+            displayName: "Publish test results"
 
       - job: SonarCloud
         displayName: "Analyze code with SonarCloud"
-        dependsOn: [Setup, Tests]  # Depende de ambos trabajos previos
+        dependsOn: Setup  # Asegurar que el entorno y dependencias están configurados
         steps:
-          - download: current
-            artifact: 'python-env'
-          
-          - download: current
-            artifact: 'test-results'
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
 
           # Prepara el entorno para el análisis de SonarCloud
           - task: SonarCloudPrepare@2
             inputs:
-              SonarCloud: 'SonarCloud'
+              SonarCloud: 'SonarCloud'  # Reemplazar con el nombre de tu Service Connection
               organization: 'unisabaneta'
               scannerMode: 'CLI'
               configMode: 'manual'
@@ -86,6 +83,11 @@ stages:
               cliSources: '.'
               extraProperties: |
                 sonar.python.coverage.reportPaths=task_manager/test-results.xml
+
+          # Instalar dependencias antes de correr el análisis de SonarCloud
+          - script: |
+              pip install -r task_manager/requirements.txt
+            displayName: "Install dependencies"
 
           # Ejecuta el análisis de SonarCloud
           - task: SonarCloudAnalyze@2
