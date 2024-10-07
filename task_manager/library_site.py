@@ -5,6 +5,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'  # Base de datos SQLite para la app
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+db = SQLAlchemy(app)
 from models import Book  # Importar el modelo de base de datos
 
 # Ruta para obtener todos los libros
