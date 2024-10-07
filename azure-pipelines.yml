@@ -13,17 +13,15 @@ stages:
       - job: Setup
         displayName: "Install Dependencies"
         steps:
-          # Instalar Python en la VM del agente
+          # Instalar la versión de Python en el agente
           - task: UsePythonVersion@0
             inputs:
               versionSpec: '3.x'
           
-          # Crear entorno virtual y descargar dependencias
+          # Instalar dependencias globalmente en el agente
           - script: |
-              python -m venv env  # Crear entorno virtual en la carpeta raíz
-              source env/bin/activate
               pip install -r task_manager/requirements.txt
-            displayName: "Setup Python environment and install dependencies"
+            displayName: "Install dependencies"
 
   - stage: LintAndTests
     displayName: "Run Linter and Tests"
@@ -32,24 +30,18 @@ stages:
       - job: LintAndTests
         displayName: "Run linter and tests"
         steps:
-          # Crear entorno virtual, instalar dependencias y el paquete principal `task_manager`
+          # Instalar dependencias necesarias para el linter y pruebas
           - script: |
-              source env/bin/activate
-              pip install -r task_manager/requirements.txt
-              pip install -e task_manager/
-            displayName: "Setup virtual environment and install `task_manager`"
+              pip install flake8 pytest pytest-cov
+            displayName: "Install tools for linting and testing"
 
           # Ejecutar flake8 para analizar el código
           - script: |
-              source env/bin/activate
-              pip install flake8
-              flake8 . --exclude=env,task_manager/env --count --select=E9,F63,F7,F82 --show-source --statistics
+              flake8 . --exclude=env --count --select=E9,F63,F7,F82 --show-source --statistics
             displayName: "Run flake8 linter"
 
           # Ejecutar pytest con cobertura y generar reporte XML
           - script: |
-              source env/bin/activate
-              pip install pytest pytest-cov
               pytest --cov=task_manager --cov-report=xml --cov-report=term-missing --junitxml=task_manager/test-results.xml
             displayName: "Run pytest and generate coverage report"
 
@@ -84,12 +76,6 @@ stages:
               cliSources: '.'
               extraProperties: |
                 sonar.python.coverage.reportPaths=task_manager/coverage.xml  # Ruta del reporte de cobertura XML
-
-          # Instalar dependencias adicionales si es necesario para el análisis
-          - script: |
-              source env/bin/activate
-              pip install -r task_manager/requirements.txt
-            displayName: "Install dependencies for SonarCloud analysis"
 
           # Ejecutar el análisis de SonarCloud
           - task: SonarCloudAnalyze@2
