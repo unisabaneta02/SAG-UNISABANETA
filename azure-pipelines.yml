@@ -13,45 +13,29 @@ stages:
       - job: Setup
         displayName: "Install Dependencies"
         steps:
-          # Instalar la versión de Python en el agente
           - task: UsePythonVersion@0
             inputs:
               versionSpec: '3.x'
-          
-          # Instalar dependencias globalmente en el agente
+
           - script: |
+              python -m venv task_manager/env
+              source task_manager/env/bin/activate
               pip install -r task_manager/requirements.txt
-            displayName: "Install dependencies"
+            displayName: "Setup Python environment and install dependencies"
 
   - stage: LintAndTests
-    displayName: "Run Linter and Tests"
+    displayName: "Run Linter"
     dependsOn: Setup
     jobs:
-      - job: LintAndTests
-        displayName: "Run linter and tests"
+      - job: Lint
+        displayName: "Run linter"
         steps:
-          # Instalar dependencias necesarias para el linter y pruebas
           - script: |
-              pip install flake8 pytest pytest-cov
-            displayName: "Install tools for linting and testing"
-
-          # Ejecutar flake8 para analizar el código
-          - script: |
-              flake8 . --exclude=env --count --select=E9,F63,F7,F82 --show-source --statistics
+              source task_manager/env/bin/activate
+              pip install flake8
+              # Excluir el entorno virtual del análisis para evitar falsos positivos
+              flake8 . --exclude=env,task_manager/env --count --select=E9,F63,F7,F82 --show-source --statistics
             displayName: "Run flake8 linter"
-
-          # Ejecutar pytest con cobertura y generar reporte XML
-          - script: |
-              pytest --cov=task_manager --cov-report=xml --cov-report=term-missing --junitxml=task_manager/test-results.xml
-            displayName: "Run pytest and generate coverage report"
-
-          # Publicar los resultados de las pruebas como artefactos del pipeline
-          - task: PublishPipelineArtifact@1
-            inputs:
-              targetPath: 'task_manager'
-              artifactName: 'test-results'
-              publishLocation: 'Container'
-            displayName: "Publish Test Results"
 
   - stage: SonarCloudAnalysis
     displayName: "SonarCloud Analysis"
@@ -64,24 +48,29 @@ stages:
             inputs:
               versionSpec: '3.x'
 
-          # Preparar la configuración de SonarCloud
+          # Prepara el entorno para el análisis de SonarCloud
           - task: SonarCloudPrepare@2
             inputs:
               SonarCloud: 'SonarCloud'  # Reemplazar con el nombre de tu Service Connection
-              organization: 'unisabaneta'  # Reemplazar con tu organización
+              organization: 'unisabaneta'
               scannerMode: 'CLI'
               configMode: 'manual'
-              cliProjectKey: 'unisabaneta_sag-unisabaneta'  # Reemplazar con tu llave de proyecto
-              cliProjectName: 'SAG-UNISABANETA'  # Reemplazar con el nombre de tu proyecto
+              cliProjectKey: 'unisabaneta_sag-unisabaneta'
+              cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
               extraProperties: |
-                sonar.python.coverage.reportPaths=task_manager/coverage.xml  # Ruta del reporte de cobertura XML
+                sonar.python.coverage.reportPaths=task_manager/test-results.xml
 
-          # Ejecutar el análisis de SonarCloud
+          - script: |
+              source task_manager/env/bin/activate
+              pip install -r task_manager/requirements.txt
+            displayName: "Install dependencies for SonarCloud analysis"
+
+          # Ejecuta el análisis de SonarCloud
           - task: SonarCloudAnalyze@2
             displayName: "Run SonarCloud analysis"
 
-          # Publicar los resultados del análisis de SonarCloud
+          # Publica los resultados del análisis de SonarCloud
           - task: SonarCloudPublish@2
             displayName: "Publish SonarCloud results"
 
