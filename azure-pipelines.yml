@@ -33,7 +33,7 @@ stages:
               pip install -r requirements.txt
               pytest --junitxml=test-results.xml
             displayName: "Install dependencies and run tests"
-            workingDirectory: '/task_manager'  
+            workingDirectory: 'SAG-UNISABANETA/task_manager'
 
 
           - task: PublishTestResults@2
