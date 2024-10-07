@@ -58,8 +58,6 @@ stages:
               cliProjectKey: 'unisabaneta_sag-unisabaneta'
               cliProjectName: 'SAG-UNISABANETA'
               cliSources: '.'
-              extraProperties: |
-                sonar.python.coverage.reportPaths=task_manager/test-results.xml
 
           - script: |
               source task_manager/env/bin/activate
