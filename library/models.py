@@ -15,3 +15,5 @@ class Book(models.Model):
             'author': self.author,
             'year': self.year,
         }
+
+#realizando cambios en el modelo
