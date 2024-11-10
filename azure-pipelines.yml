@@ -18,9 +18,9 @@ stages:
               versionSpec: '3.x'
 
           - script: |
-              python -m venv task_manager/env
-              source task_manager/env/bin/activate
-              pip install -r task_manager/requirements.txt
+              python -m venv library/env
+              source library/env/bin/activate
+              pip install -r library/requirements.txt
             displayName: "Setup Python environment and install dependencies"
 
   - stage: LintAndTests
@@ -31,10 +31,10 @@ stages:
         displayName: "Run linter"
         steps:
           - script: |
-              source task_manager/env/bin/activate
+              source library/env/bin/activate
               pip install flake8
               # Excluir el entorno virtual del análisis para evitar falsos positivos
-              flake8 . --exclude=env,task_manager/env --count --select=E9,F63,F7,F82 --show-source --statistics
+              flake8 . --exclude=env,library/env --count --select=E9,F63,F7,F82 --show-source --statistics
             displayName: "Run flake8 linter"
 
   - stage: SonarCloudAnalysis
@@ -60,8 +60,8 @@ stages:
               cliSources: '.'
 
           - script: |
-              source task_manager/env/bin/activate
-              pip install -r task_manager/requirements.txt
+              source library/env/bin/activate
+              pip install -r library/requirements.txt
             displayName: "Install dependencies for SonarCloud analysis"
 
           # Ejecuta el análisis de SonarCloud
