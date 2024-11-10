@@ -1,5 +1,6 @@
 from library_site import db
 
+
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
@@ -8,8 +9,8 @@ class Book(db.Model):
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'title': self.title,
-            'author': self.author,
-            'year': self.year
+            "id": self.id,
+            "title": self.title,
+            "author": self.author,
+            "year": self.year,
         }
