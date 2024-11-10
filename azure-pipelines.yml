@@ -37,6 +37,28 @@ stages:
               flake8 . --exclude=env,library/env --count --select=E9,F63,F7,F82 --show-source --statistics
             displayName: "Run flake8 linter"
 
+  - stage: SecurityAnalysis
+    displayName: "Run Security Analysis"
+    dependsOn: Setup
+    jobs:
+      - job: Security
+        displayName: "Analyze Security Vulnerabilities"
+        steps:
+          - script: |
+              source library/env/bin/activate
+              pip install bandit safety
+            displayName: "Install security tools"
+
+          - script: |
+              # Analiza el código en busca de vulnerabilidades comunes en Python con Bandit
+              bandit -r library/ --skip B101,B404
+            displayName: "Run Bandit Security Analysis"
+
+          - script: |
+              # Analiza las dependencias en requirements.txt para detectar vulnerabilidades conocidas con Safety
+              safety check -r library/requirements.txt
+            displayName: "Run Safety Dependency Security Check"
+
   - stage: SonarCloudAnalysis
     displayName: "SonarCloud Analysis"
     dependsOn: LintAndTests
