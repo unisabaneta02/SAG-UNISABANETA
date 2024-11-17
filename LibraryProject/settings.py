@@ -18,7 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',  # Para crear API REST
-    'library',  # Nuestra app de biblioteca
+    'library',  # Nuestra app de bibliotecawde
 ]
 
 MIDDLEWARE = [
