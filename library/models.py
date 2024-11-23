@@ -15,5 +15,3 @@ class Book(models.Model):
             'author': self.author,
             'year': self.year,
         }
-https://dev.azure.com/Unisabaneta/Sag Academico/_wiki/wikis/Sag-Academico.wiki/10/Pipelines-para-diferentes-tecnologias
-#realizando cambios en el modelo wdnwd
