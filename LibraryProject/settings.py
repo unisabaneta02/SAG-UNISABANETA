@@ -3,7 +3,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'your-secret-key'  # Cambia esto por una clave segura en producción
+SECRET_KEY = 'llave-secreta'  # Cambia esto por una clave segura en producción
 
 #mi vulnerabilidad
 DEBUG = True
