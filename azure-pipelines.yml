@@ -2,6 +2,7 @@ trigger:
   branches:
     include:
       - develop
+      - main   #agregando trigger a rama main
 
 pool:
   vmImage: 'ubuntu-latest'
